@@ -1,42 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
+import './components/messages.dart';
+import './components/new_message.dart';
 
-class _HomeScreenState extends State<HomeScreen> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+class HomeScreen extends StatelessWidget {
+  static String routeName = '/home';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Flutter Chat'),
-      ),
-      body: StreamBuilder(
-        builder: (ctx, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final document = (snapshot.data as QuerySnapshot).docs;
-          return ListView.builder(
-            reverse: true,
-            itemCount: document.length,
-            itemBuilder: (ctx, i) {
-              return Container(
-                padding: EdgeInsets.all(10.0),
-                child: Text(document[i]['text']),
-              );
+        actions: [
+          PopupMenuButton(
+            icon: Icon(
+              Icons.more_vert,
+              color: Theme.of(context).primaryIconTheme.color,
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: Container(
+                  child: Row(
+                    children: [
+                      Icon(Icons.exit_to_app),
+                      SizedBox(width: 8),
+                      Text('Logout'),
+                    ],
+                  ),
+                ),
+                value: 'logout',
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'logout') {
+                FirebaseAuth.instance.signOut();
+              }
             },
-          );
-        },
-        stream: firestore
-            .collection('Chats/gYNY7Qv2VrJMsZZIaiCq/messages')
-            .snapshots(),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Messages(),
+          ),
+          NewMessage(),
+        ],
       ),
     );
   }
