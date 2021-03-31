@@ -23,9 +23,26 @@ class _MainAppState extends State<MainApp> {
       routes: routes,
       home: StreamBuilder(
         builder: (context, AsyncSnapshot<User?> snapshot) {
-          if (snapshot.hasData)
+          if (snapshot.hasData) {
+            // SharedPreferences.getInstance()
+            //     .then((prefs) {
+            //       if (prefs.containsKey('username')) {
+            //         FirebaseFirestore.instance
+            //             .collection('users')
+            //             .doc(auth.currentUser!.uid)
+            //             .set({
+            //           'username': prefs.getString('username')
+            //         }).catchError((onError) {
+            //           print(onError);
+            //         });
+            //       }
+            //     })
+            //     .then((value) => HomeScreen())
+            //     .catchError((onError) {
+            //       print(onError);
+            //     });
             return HomeScreen();
-          else
+          } else
             return WelcomeScreen();
         },
         stream: auth.authStateChanges(),

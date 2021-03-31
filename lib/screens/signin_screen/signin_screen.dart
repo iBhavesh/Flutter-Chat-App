@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -64,6 +65,7 @@ class _SigninScreenState extends State<SigninScreen> {
               Container(
                 width: 250,
                 child: TextFormField(
+                  initialValue: !kReleaseMode ? '123456' : null,
                   key: _key,
                   decoration: InputDecoration(labelText: 'Password'),
                   obscureText: true,
@@ -98,6 +100,7 @@ class _SigninScreenState extends State<SigninScreen> {
                 onPressed: () {
                   _key.currentState!.save();
                   _key.currentState!.reset();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

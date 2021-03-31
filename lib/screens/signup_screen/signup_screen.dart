@@ -1,8 +1,13 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as fst;
 
 import '../../helpers.dart';
+import './components/custom_picker.dart';
 
 class SignupScreen extends StatefulWidget {
   final String email, password;
@@ -21,14 +26,21 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isWaiting = false;
   String _email = '';
   String _password = '';
-  String _username = '';
+  String _username = !kReleaseMode ? 'bhavesh' : '';
+  File? _userImageFile;
+
+  void _setPickedImage(File pickedImage) {
+    _userImageFile = pickedImage;
+  }
 
   void _signup(BuildContext context) async {
     final isValid = _formKey.currentState!.validate();
+    String imageUrl = '';
     FocusScope.of(context).unfocus();
     if (!isValid) {
       return;
     }
+
     _formKey.currentState!.save();
     setState(() {
       _isWaiting = true;
@@ -36,14 +48,29 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final authResult = await _auth.createUserWithEmailAndPassword(
           email: _email, password: _password);
+      if (_userImageFile != null) {
+        await fst.FirebaseStorage.instance
+            .ref('profile_pictures/${authResult.user!.uid}.jpg')
+            .putFile(_userImageFile!);
+        imageUrl = await fst.FirebaseStorage.instance
+            .ref('profile_pictures/${authResult.user!.uid}.jpg')
+            .getDownloadURL();
+      }
       if (authResult.user != null) {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user!.uid)
-            .set({'username': _username, 'email': _email});
+            .set({
+          'username': _username,
+          'email': _email,
+          'pofile_pic': imageUrl,
+          'createdAt': Timestamp.now()
+        });
+        Navigator.pop(context);
+        Navigator.pop(context);
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint(e.toString());
+      debugPrint(e.message);
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(e.message!),
@@ -53,9 +80,10 @@ class _SignupScreenState extends State<SignupScreen> {
     } catch (e) {
       debugPrint(e.toString());
     }
-    setState(() {
-      _isWaiting = false;
-    });
+
+    // setState(() {
+    //   _isWaiting = false;
+    // });
   }
 
   @override
@@ -71,18 +99,25 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         title: Text('Sign Up'),
       ),
-      body: SafeArea(
-        child: Center(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Container(
-                width: 250,
-                child: Form(
-                  key: _formKey,
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return SafeArea(
+      child: Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              width: 250,
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      CustomPicker(_setPickedImage),
                       TextFormField(
                         initialValue: _email,
                         keyboardType: TextInputType.emailAddress,
@@ -144,7 +179,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         },
                       ),
                       TextFormField(
-                        initialValue: _password,
+                        initialValue:
+                            !kReleaseMode ? _passwordController.text : null,
                         obscureText: true,
                         decoration:
                             InputDecoration(labelText: 'Confirm Password'),

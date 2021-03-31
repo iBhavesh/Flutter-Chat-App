@@ -31,13 +31,20 @@ class Messages extends StatelessWidget {
             reverse: true,
             itemCount: document.length,
             itemBuilder: (ctx, i) {
+              // final time = (document[i]['createdAt'] as Timestamp).toDate();
+              // if (time.isAfter(
+              //     DateTime(time.year, time.month, time.day, 23, 59, 59)))
+              //     return Container()
               return Container(
                 padding: EdgeInsets.all(10.0),
                 child: ChatBubble(
-                    document[i]['text'],
-                    document[i]['createdAt'],
-                    document[i]['senderEmail'] ==
-                        FirebaseAuth.instance.currentUser!.email),
+                  document[i]['text'],
+                  document[i]['createdAt'],
+                  document[i]['senderEmail'] ==
+                      FirebaseAuth.instance.currentUser!.email,
+                  document[i]['senderEmail'],
+                  key: Key(document[i].id),
+                ),
               );
             },
           );

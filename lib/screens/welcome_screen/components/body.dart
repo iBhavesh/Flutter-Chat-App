@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../helpers.dart';
@@ -13,7 +14,7 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  String email = 'dummy@email.com';
+  String email = '';
   final _key = GlobalKey<FormFieldState>();
   final _controller = TextEditingController();
 
@@ -28,6 +29,7 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
+    if (!kReleaseMode) _controller.text = 'bs466218@gmail.com';
     return SafeArea(
       child: Container(
         width: double.infinity,

@@ -12,7 +12,6 @@ class _NewMessageState extends State<NewMessage> {
   String _enteredMessage = '';
 
   void _sendMessage() async {
-    FocusScope.of(context).unfocus();
     _controller.clear();
     FirebaseFirestore.instance.collection('chats').add({
       'text': _enteredMessage,
@@ -33,7 +32,6 @@ class _NewMessageState extends State<NewMessage> {
               minLines: 1,
               maxLines: 5,
               keyboardType: TextInputType.multiline,
-              autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
                 contentPadding: EdgeInsets.fromLTRB(20, 5, 10, 5),
