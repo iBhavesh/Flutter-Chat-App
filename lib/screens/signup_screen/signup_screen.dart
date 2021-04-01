@@ -63,7 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
             .set({
           'username': _username,
           'email': _email,
-          'pofile_pic': imageUrl,
+          'profile_pic': imageUrl,
           'createdAt': Timestamp.now()
         });
         Navigator.pop(context);

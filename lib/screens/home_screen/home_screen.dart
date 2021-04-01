@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import './components/messages.dart';
 import './components/new_message.dart';
@@ -55,6 +56,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     setState(() {
       _isWaiting = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print(
+            'Message also contained a notification: ${message.notification!.body}');
+      }
+    });
+    FirebaseMessaging.instance.getToken().then((value) {
+      print(value);
     });
   }
 
